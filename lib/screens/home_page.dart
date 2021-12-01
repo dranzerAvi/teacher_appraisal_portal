@@ -1,6 +1,10 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:teacher_appraisal_portal/shared/responsive.dart';
 import 'package:teacher_appraisal_portal/widgets/bar_chart_full_width.dart';
+import 'package:teacher_appraisal_portal/widgets/log_tasks.dart';
+import 'package:teacher_appraisal_portal/widgets/profile_form.dart';
+import 'package:teacher_appraisal_portal/widgets/user_tasks.dart';
 import 'package:teacher_appraisal_portal/widgets/web_scrollbar.dart';
 import 'package:teacher_appraisal_portal/widgets/bottom_bar.dart';
 import 'package:teacher_appraisal_portal/widgets/carousel.dart';
@@ -12,6 +16,8 @@ import 'package:teacher_appraisal_portal/widgets/floating_quick_access_bar.dart'
 import 'package:teacher_appraisal_portal/widgets/responsive.dart';
 import 'package:teacher_appraisal_portal/widgets/top_bar_contents.dart';
 import 'package:flutter/material.dart';
+
+import '../main.dart';
 
 class HomePage extends StatefulWidget {
   static const String route = '/';
@@ -43,6 +49,100 @@ class _HomePageState extends State<HomePage> {
     _opacity = _scrollPosition < _size.height * 0.40
         ? _scrollPosition / (_size.height * 0.40)
         : 1;
+    Widget homePage() {
+      return Column(
+        children: [
+          // Column(
+          //   children: [
+          //     FloatingQuickAccessBar(screenSize: _size),
+          //     Container(
+          //       child: Column(
+          //         children: [
+          //           FeaturedHeading(
+          //             screenSize: _size,
+          //           ),
+          //           FeaturedTiles(screenSize: _size)
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          HeadingAndSubHeading(
+            screenSize: _size,
+            heading: 'Statistics',
+            subHeading: 'Stats about your progress',
+          ),
+          StatisticsTiles(
+            screenSize: _size,
+            images: [
+              'https://firebasestorage.googleapis.com/v0/b/teacher-appraisal-portal.appspot.com/o/pixeltrue-success.png?alt=media&token=e1af1ef5-b9fc-41fb-8cf3-db8825c0ca9b',
+              'https://firebasestorage.googleapis.com/v0/b/teacher-appraisal-portal.appspot.com/o/eastwood-56.png?alt=media&token=040fff31-61e9-4527-ae4a-25386a368b42',
+            ],
+            titles: [
+              'Tasks Logged',
+              'Credits Earned',
+            ],
+            values: ['12', '250'],
+          ),
+          DestinationHeading(screenSize: _size),
+          LineChartSample1(),
+          // BarChartFullWidth(
+          //   isShowingMainData: false,
+          // ),
+          SizedBox(height: _size.height / 10),
+          BottomBar(),
+        ],
+      );
+    }
+
+    Widget yourProfile() {
+      return Column(
+        children: [
+          HeadingAndSubHeading(
+            screenSize: _size,
+            heading: 'Profile Details',
+            subHeading: '',
+          ),
+          ProfileForm(
+            screenSize: _size,
+          ),
+        ],
+      );
+    }
+
+    Widget logTasks() {
+      return Column(
+        children: [
+          HeadingAndSubHeading(
+            screenSize: _size,
+            heading: 'Log Tasks',
+            subHeading: '',
+          ),
+          LogTasks(
+            screenSize: _size,
+          ),
+        ],
+      );
+    }
+
+    Widget yourTasks() {
+      return Column(
+        children: [
+          HeadingAndSubHeading(
+            screenSize: _size,
+            heading: 'Your Tasks',
+            subHeading: '',
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          UserTasks(
+            screenSize: _size,
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       extendBody: true,
       appBar: ResponsiveWidget.isSmallScreen(context)
@@ -98,52 +198,22 @@ class _HomePageState extends State<HomePage> {
           heightFraction: 0.3,
           controller: _scrollController,
           child: SingleChildScrollView(
-            controller: _scrollController,
-            physics: ClampingScrollPhysics(),
-            child: Column(
-              children: [
-                // Column(
-                //   children: [
-                //     FloatingQuickAccessBar(screenSize: _size),
-                //     Container(
-                //       child: Column(
-                //         children: [
-                //           FeaturedHeading(
-                //             screenSize: _size,
-                //           ),
-                //           FeaturedTiles(screenSize: _size)
-                //         ],
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                HeadingAndSubHeading(
-                  screenSize: _size,
-                  heading: 'Statistics',
-                  subHeading: 'Stats about your progress',
-                ),
-                StatisticsTiles(
-                  screenSize: _size,
-                  images: [
-                    'https://firebasestorage.googleapis.com/v0/b/teacher-appraisal-portal.appspot.com/o/pixeltrue-success.png?alt=media&token=e1af1ef5-b9fc-41fb-8cf3-db8825c0ca9b',
-                    'https://firebasestorage.googleapis.com/v0/b/teacher-appraisal-portal.appspot.com/o/eastwood-56.png?alt=media&token=040fff31-61e9-4527-ae4a-25386a368b42',
-                  ],
-                  titles: [
-                    'Tasks Logged',
-                    'Credits Earned',
-                  ],
-                  values: ['12', '250'],
-                ),
-                DestinationHeading(screenSize: _size),
-                LineChartSample1(),
-                // BarChartFullWidth(
-                //   isShowingMainData: false,
-                // ),
-                SizedBox(height: _size.height / 10),
-                BottomBar(),
-              ],
-            ),
-          ),
+              controller: _scrollController,
+              physics: ClampingScrollPhysics(),
+              child: PreferenceBuilder<String>(
+                  preference:
+                      preferences.getString('currPage', defaultValue: 'home'),
+                  builder: (BuildContext context, String counter) {
+                    return counter == 'home'
+                        ? homePage()
+                        : counter == 'profile'
+                            ? yourProfile()
+                            : counter == 'logTasks'
+                                ? logTasks()
+                                : counter == 'yourTasks'
+                                    ? yourTasks()
+                                    : Container();
+                  })),
         ),
       ),
     );

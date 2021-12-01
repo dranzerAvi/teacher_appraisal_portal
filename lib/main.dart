@@ -1,11 +1,15 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:teacher_appraisal_portal/utils/authentication.dart';
 import 'package:teacher_appraisal_portal/utils/theme_data.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/home_page.dart';
 
-void main() {
+var preferences;
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  preferences = await StreamingSharedPreferences.instance;
   runApp(
     EasyDynamicThemeWidget(
       child: MyApp(),

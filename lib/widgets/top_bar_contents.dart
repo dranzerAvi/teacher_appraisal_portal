@@ -1,8 +1,11 @@
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:teacher_appraisal_portal/screens/home_page.dart';
 import 'package:teacher_appraisal_portal/utils/authentication.dart';
 import 'package:teacher_appraisal_portal/widgets/auth_dialog.dart';
 import 'package:flutter/material.dart';
+import '../main.dart';
 
 class TopBarContents extends StatefulWidget {
   final double opacity;
@@ -25,6 +28,21 @@ class _TopBarContentsState extends State<TopBarContents> {
     false
   ];
 
+  String? userEmail;
+
+  getProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userEmail = prefs.getString('userEmail');
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getProfile();
+
+    super.initState();
+  }
+
   bool _isProcessing = false;
 
   @override
@@ -40,14 +58,19 @@ class _TopBarContentsState extends State<TopBarContents> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'TAP',
-                style: TextStyle(
-                  color: Colors.blueGrey[100],
-                  fontSize: 20,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 3,
+              InkWell(
+                onTap: () {
+                  preferences.setString('currPage', 'home');
+                },
+                child: Text(
+                  'TAP',
+                  style: TextStyle(
+                    color: Colors.blueGrey[100],
+                    fontSize: 20,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 3,
+                  ),
                 ),
               ),
               Expanded(
@@ -63,7 +86,9 @@ class _TopBarContentsState extends State<TopBarContents> {
                               : _isHovering[0] = false;
                         });
                       },
-                      onTap: () {},
+                      onTap: () {
+                        preferences.setString('currPage', 'logTasks');
+                      },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -103,7 +128,9 @@ class _TopBarContentsState extends State<TopBarContents> {
                               : _isHovering[1] = false;
                         });
                       },
-                      onTap: () {},
+                      onTap: () {
+                        preferences.setString('currPage', 'yourTasks');
+                      },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -183,7 +210,9 @@ class _TopBarContentsState extends State<TopBarContents> {
                               : _isHovering[3] = false;
                         });
                       },
-                      onTap: () {},
+                      onTap: () {
+                        preferences.setString('currPage', 'profile');
+                      },
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

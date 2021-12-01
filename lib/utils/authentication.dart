@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -113,6 +114,23 @@ Future<User?> registerWithEmailPassword(String email, String password) async {
     if (user != null) {
       uid = user.uid;
       userEmail = user.email;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('uid', user.uid);
+      if (user.email != null)
+        prefs.setString('userEmail', user.email.toString());
+      FirebaseFirestore.instance.collection('Users').doc(uid).set({
+        'email': user.email,
+        'name': '',
+        'presentDesig': '',
+        'qualif': '',
+        'department': '',
+        'joiningDate': '',
+        'firstDesig': '',
+        'presentPay': '',
+        'specialization': '',
+        'additionalQualif': '',
+        'higherStudies': ''
+      });
     }
   } on FirebaseAuthException catch (e) {
     if (e.code == 'weak-password') {
@@ -141,8 +159,13 @@ Future<User?> signInWithEmailPassword(String email, String password) async {
     if (user != null) {
       uid = user.uid;
       userEmail = user.email;
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('uid', user.uid).then((value) {
+        String id = prefs.getString('uid').toString();
+        print(id);
+      });
+      if (user.email != null)
+        prefs.setString('userEmail', user.email.toString());
       await prefs.setBool('auth', true);
     }
   } on FirebaseAuthException catch (e) {
@@ -161,6 +184,8 @@ Future<String> signOut() async {
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setBool('auth', false);
+  prefs.remove('uid');
+  prefs.remove('userEmail');
 
   uid = null;
   userEmail = null;
