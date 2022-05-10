@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_dynamic_theme/easy_dynamic_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:teacher_appraisal_portal/shared/responsive.dart';
 import 'package:teacher_appraisal_portal/widgets/bar_chart_full_width.dart';
@@ -41,7 +43,27 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    getProfile();
     super.initState();
+  }
+
+  String? userEmail, uid;
+  int apiScore = 0, noOfTasks = 0;
+  getProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userEmail = prefs.getString('userEmail');
+    uid = prefs.getString('uid');
+    await FirebaseFirestore.instance
+        .collection('Tasks')
+        .where('uid', isEqualTo: uid)
+        .get()
+        .then((value) {
+      value.docs.forEach((element) {
+        apiScore += int.parse(element.data()['apiScore']);
+        noOfTasks++;
+      });
+    });
+    setState(() {});
   }
 
   Widget build(BuildContext context) {
@@ -82,7 +104,7 @@ class _HomePageState extends State<HomePage> {
               'Tasks Logged',
               'Credits Earned',
             ],
-            values: ['12', '250'],
+            values: [noOfTasks.toString(), apiScore.toString()],
           ),
           DestinationHeading(screenSize: _size),
           LineChartSample1(),
